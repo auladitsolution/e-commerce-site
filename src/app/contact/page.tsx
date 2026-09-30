@@ -7,12 +7,21 @@ import { Header } from "@/components/storefront/Header";
 import { Footer } from "@/components/storefront/Footer";
 import { MobileBottomNav } from "@/components/storefront/MobileBottomNav";
 import { toast } from "sonner";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 export default function ContactPage() {
+  const { settings } = useStoreSettings();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const storeProfile = settings?.storeProfile;
+  const nameBn = storeProfile?.nameBn || "স্মার্ট শপ বাংলাদেশ";
+  const hotline = storeProfile?.phone || "০১৭১১-০০০০০০";
+  const hours = storeProfile?.workingHours || "সকাল ৯টা - রাত ১০টা";
+  const email = storeProfile?.email || "support@smartshopbd.com";
+  const address = storeProfile?.address || "রোড নং ৪, ধানমন্ডি, ঢাকা - ১২০৫, বাংলাদেশ";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +58,7 @@ export default function ContactPage() {
           {/* Contact Details */}
           <div className="lg:col-span-5 bg-sky-900 text-white p-8 rounded-3xl space-y-6 shadow-md">
             <div>
-              <h3 className="text-xl font-bold mb-2">স্মার্ট শপ বাংলাদেশ</h3>
+              <h3 className="text-xl font-bold mb-2">{nameBn}</h3>
               <p className="text-sky-200 text-xs leading-relaxed">
                 আমাদের কাস্টমার কেয়ার টিম সপ্তাহের ৭ দিনই আপনার সেবায় নিয়োজিত।
               </p>
@@ -60,7 +69,7 @@ export default function ContactPage() {
                 <Phone className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold block text-white">হেল্পলাইন</span>
-                  <span>০১৭১১-০০০০০০ (সকাল ৯টা - রাত ১০টা)</span>
+                  <span>{hotline} ({hours})</span>
                 </div>
               </div>
 
@@ -68,7 +77,7 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold block text-white">ইমেইল</span>
-                  <span>support@smartshopbd.com</span>
+                  <span>{email}</span>
                 </div>
               </div>
 
@@ -76,7 +85,7 @@ export default function ContactPage() {
                 <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold block text-white">অফিস ঠিকানা</span>
-                  <span>রোড নং ৪, ধানমন্ডি, ঢাকা - ১২০৫, বাংলাদেশ</span>
+                  <span>{address}</span>
                 </div>
               </div>
             </div>

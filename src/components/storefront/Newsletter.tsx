@@ -3,10 +3,22 @@
 import { useState } from "react";
 import { Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 export function Newsletter() {
+  const { settings } = useStoreSettings();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+
+  if (settings?.newsletter?.enabled === false) {
+    return null;
+  }
+
+  const title = settings?.newsletter?.title || "নতুন অফার ও বিশেষ ছাড়ের আপডেট পান";
+  const subtitle =
+    settings?.newsletter?.subtitle ||
+    "আমাদের সাপ্তাহিক নিউজলেটারে যুক্ত হয়ে এক্সক্লুসিভ ডিসকাউন্ট কুপন ও নতুন কালেকশনের আগাম তথ্য পান সবার আগে।";
+  const buttonText = settings?.newsletter?.buttonText || "যুক্ত হোন";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +40,10 @@ export function Newsletter() {
             <Mail className="w-6 h-6" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold">
-            নতুন অফার ও বিশেষ ছাড়ের আপডেট পান
+            {title}
           </h2>
           <p className="text-sky-200 text-sm">
-            আমাদের সাপ্তাহিক নিউজলেটারে যুক্ত হয়ে এক্সক্লুসিভ ডিসকাউন্ট কুপন ও নতুন কালেকশনের আগাম তথ্য পান সবার আগে।
+            {subtitle}
           </p>
 
           {subscribed ? (
@@ -53,7 +65,7 @@ export function Newsletter() {
                 type="submit"
                 className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm shadow-md transition-colors whitespace-nowrap"
               >
-                যুক্ত হোন
+                {buttonText}
               </button>
             </form>
           )}

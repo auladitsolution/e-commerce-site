@@ -259,19 +259,101 @@ export interface StoreThemeConfig {
   showAnnouncement: boolean;
 }
 
+export interface HeroSectionConfig {
+  badgeText: string;
+  titleLine1: string;
+  titleHighlight: string;
+  titleLine2: string;
+  description: string;
+  cta1Text: string;
+  cta1Link: string;
+  cta2Text: string;
+  cta2Link: string;
+  showcaseImage: string;
+  showcaseBadge: string;
+  showcaseTitle: string;
+  showcasePriceTag: string;
+  trustItem1: string;
+  trustItem2: string;
+  trustItem3: string;
+}
+
+export interface PromoBannerConfig {
+  enabled: boolean;
+  badge: string;
+  title: string;
+  description: string;
+  couponCode: string;
+  buttonText: string;
+  buttonLink: string;
+}
+
+export interface AnnouncementBarConfig {
+  enabled: boolean;
+  text: string;
+  highlightText: string;
+  phoneText: string;
+  trackText: string;
+}
+
+export interface TrustBadgeItemConfig {
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface TrustBadgesConfig {
+  enabled: boolean;
+  items: TrustBadgeItemConfig[];
+}
+
+export interface NewsletterConfig {
+  enabled: boolean;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+}
+
+export interface FooterConfig {
+  aboutText: string;
+  workingHours: string;
+  copyrightText: string;
+  devCreditText: string;
+  acceptedPaymentMethods: string;
+}
+
+export interface ShippingConfig {
+  insideDhakaCharge: number;
+  outsideDhakaCharge: number;
+  freeShippingThreshold: number;
+  estimatedDeliveryDhaka: string;
+  estimatedDeliveryOutside: string;
+}
+
 export interface StoreSettingsConfig {
+  _id?: string;
   storeProfile: {
     nameBn: string;
     nameEn: string;
+    tagline?: string;
     logo?: string;
     favicon?: string;
     phone: string;
     email: string;
     address: string;
+    workingHours?: string;
     facebook?: string;
     instagram?: string;
     whatsapp?: string;
+    youtube?: string;
   };
+  announcement: AnnouncementBarConfig;
+  hero: HeroSectionConfig;
+  promotionalBanner: PromoBannerConfig;
+  trustBadges: TrustBadgesConfig;
+  newsletter: NewsletterConfig;
+  footer: FooterConfig;
+  shipping: ShippingConfig;
   commerce: {
     currency: string;
     currencySymbol: string;

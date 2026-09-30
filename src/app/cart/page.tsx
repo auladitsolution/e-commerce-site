@@ -18,10 +18,16 @@ import { MobileBottomNav } from "@/components/storefront/MobileBottomNav";
 import { useCart } from "@/hooks/useCart";
 import { formatBDT } from "@/lib/utils/formatters";
 import { toast } from "sonner";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 export default function CartPage() {
   const router = useRouter();
   const { items, subtotal, updateQuantity, removeFromCart, clearCart, isLoaded } = useCart();
+  const { settings } = useStoreSettings();
+
+  const insideCharge = settings?.shipping?.insideDhakaCharge ?? 60;
+  const outsideCharge = settings?.shipping?.outsideDhakaCharge ?? 120;
+  const freeThreshold = settings?.shipping?.freeShippingThreshold ?? 1500;
 
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -33,8 +39,8 @@ export default function CartPage() {
   const [shippingZone, setShippingZone] = useState<"dhaka" | "outside">("dhaka");
 
   // Shipping calculation
-  const baseShipping = shippingZone === "dhaka" ? 60 : 120;
-  const isFreeShipping = subtotal >= 1500 || appliedCoupon?.freeShipping;
+  const baseShipping = shippingZone === "dhaka" ? insideCharge : outsideCharge;
+  const isFreeShipping = subtotal >= freeThreshold || appliedCoupon?.freeShipping;
   const shippingCharge = isFreeShipping ? 0 : baseShipping;
   const couponDiscount = appliedCoupon?.discountAmount || 0;
   const grandTotal = Math.max(0, subtotal - couponDiscount + shippingCharge);
@@ -221,9 +227,9 @@ export default function CartPage() {
             <div className="p-4 bg-sky-50 border border-sky-200/80 rounded-2xl flex items-center gap-3 text-sky-800 text-xs sm:text-sm">
               <ShieldCheck className="w-5 h-5 text-sky-600 shrink-0" />
               <span>
-                {subtotal >= 1500
+                {subtotal >= freeThreshold
                   ? "🎉 অভিনন্দন! আপনি সারা দেশে সম্পূর্ণ ফ্রি ডেলিভারি পাচ্ছেন।"
-                  : `আর মাত্র ${formatBDT(1500 - subtotal)} টাকার পণ্য কিনলে পাচ্ছেন ফ্রি ডেলিভারি!`}
+                  : `আর মাত্র ${formatBDT(freeThreshold - subtotal)} টাকার পণ্য কিনলে পাচ্ছেন ফ্রি ডেলিভারি!`}
               </span>
             </div>
           </div>
@@ -250,7 +256,7 @@ export default function CartPage() {
                         : "bg-slate-50 text-slate-700 border-slate-200"
                     }`}
                   >
-                    ঢাকার ভিতরে (৳৬০)
+                    ঢাকার ভিতরে ({formatBDT(insideCharge)})
                   </button>
                   <button
                     type="button"
@@ -261,7 +267,7 @@ export default function CartPage() {
                         : "bg-slate-50 text-slate-700 border-slate-200"
                     }`}
                   >
-                    ঢাকার বাইরে (৳১২০)
+                    ঢাকার বাইরে ({formatBDT(outsideCharge)})
                   </button>
                 </div>
               </div>

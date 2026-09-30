@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { BD_DISTRICTS, formatBDT, validateBDPhone } from "@/lib/utils/formatters";
 import { PaymentMethod } from "@/types/ecommerce";
 import { toast } from "sonner";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -44,9 +45,14 @@ function CheckoutContent() {
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
+  const { settings } = useStoreSettings();
+  const insideCharge = settings?.shipping?.insideDhakaCharge ?? 60;
+  const outsideCharge = settings?.shipping?.outsideDhakaCharge ?? 120;
+  const freeThreshold = settings?.shipping?.freeShippingThreshold ?? 1500;
+
   // Dynamic Shipping Charge
   const isDhaka = district.includes("ঢাকা") || district.toLowerCase().includes("dhaka");
-  const shippingCharge = subtotal >= 1500 ? 0 : isDhaka ? 60 : 120;
+  const shippingCharge = subtotal >= freeThreshold ? 0 : isDhaka ? insideCharge : outsideCharge;
   const grandTotal = Math.max(0, subtotal - couponDiscount + shippingCharge);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {

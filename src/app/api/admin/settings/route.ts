@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest) {
     await connectDB();
     const body = await req.json();
 
-    const updated = await StoreSettings.findOneAndUpdate(
+    await StoreSettings.findOneAndUpdate(
       { key: "global_store_settings" },
       { $set: body },
       { new: true, upsert: true }
@@ -32,7 +32,8 @@ export async function PUT(req: NextRequest) {
       afterSummary: "স্টোর সেটিংস এবং থিম আপডেট করা হয়েছে",
     });
 
-    return NextResponse.json(updated);
+    const refreshed = await getStoreSettings();
+    return NextResponse.json(refreshed);
   } catch (err: unknown) {
     console.error("PUT /api/admin/settings error:", err);
     return NextResponse.json({ error: "সেটিংস সংরক্ষণ করা সম্ভব হয়নি" }, { status: 500 });

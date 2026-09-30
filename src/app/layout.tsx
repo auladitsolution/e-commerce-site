@@ -33,6 +33,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { StoreSettingsProvider } from "@/context/StoreSettingsContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -48,7 +50,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-sky-500 selection:text-white">
-        {children}
+        <StoreSettingsProvider>
+          {children}
+        </StoreSettingsProvider>
         <Toaster position="top-right" richColors closeButton />
       </body>
     </html>

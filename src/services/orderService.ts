@@ -3,6 +3,7 @@ import { Product } from "@/models/Product";
 import { Payment } from "@/models/Payment";
 import { Customer } from "@/models/Customer";
 import { ShippingZone } from "@/models/ShippingZone";
+import { getStoreSettings } from "@/models/StoreSettings";
 import { InventoryService } from "@/services/inventoryService";
 import { CouponService } from "@/services/couponService";
 import { generateOrderNumber, generateTrackingToken } from "@/lib/utils/orderNumber";
@@ -69,10 +70,15 @@ export class OrderService {
       return matchedZone.baseCharge;
     }
 
-    // Default Bangladesh shipping rules: Inside Dhaka ৳60, Outside Dhaka ৳120
+    // Default Bangladesh shipping rules configured in Store Settings
+    const settings = await getStoreSettings().catch(() => null);
+    const insideCharge = settings?.shipping?.insideDhakaCharge ?? 60;
+    const outsideCharge = settings?.shipping?.outsideDhakaCharge ?? 120;
+    const freeThreshold = settings?.shipping?.freeShippingThreshold ?? 1500;
+
     const isDhaka = district.toLowerCase().includes("ঢাকা") || district.toLowerCase().includes("dhaka");
-    if (subtotal >= 1500) return 0; // Free shipping threshold default
-    return isDhaka ? 60 : 120;
+    if (subtotal >= freeThreshold) return 0;
+    return isDhaka ? insideCharge : outsideCharge;
   }
 
   /**
