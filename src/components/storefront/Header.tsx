@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Search,
   ShoppingCart,
@@ -16,11 +16,13 @@ import {
   Grid,
   MapPin,
   ShieldCheck,
+  LogIn,
 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { isOwnerEmail } from "@/lib/permissions/rbac";
 
 const CATEGORY_ITEMS = [
   { name: "ফ্যাশন ও পোশাক", slug: "fashion" },
@@ -32,10 +34,12 @@ const CATEGORY_ITEMS = [
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { totalItemsCount, subtotal } = useCart();
   const { count: wishlistCount } = useWishlist();
-  const { user, logout } = useAuth();
+  const { user, loginWithGoogle, logout } = useAuth();
   const { settings } = useStoreSettings();
+  const isOwner = isOwnerEmail(user?.email);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -229,30 +233,61 @@ export function Header() {
                       <div className="px-4 py-2 border-b border-slate-100">
                         <p className="text-xs text-slate-500 font-medium">অ্যাকাউন্টে প্রবেশ করুন</p>
                       </div>
-                      <Link
-                        href="/account"
-                        onClick={() => setAccountMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-sky-700 font-semibold hover:bg-sky-50 transition-colors"
+
+                      {/* Instant One-Click Google Login without leaving page */}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setAccountMenuOpen(false);
+                          try {
+                            const logged = await loginWithGoogle();
+                            if (logged && isOwnerEmail(logged.email) && pathname === "/account") {
+                              router.push("/admin");
+                            }
+                          } catch {
+                            // error toast shown in hook
+                          }
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50 transition-colors flex items-center gap-2 cursor-pointer"
                       >
-                        লগইন / রেজিস্টার
+                        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                        </svg>
+                        <span>Google দিয়ে সরাসরি সাইন ইন</span>
+                      </button>
+
+                      <Link
+                        href={`/account?returnUrl=${encodeURIComponent(pathname || "/")}`}
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="block px-4 py-2 text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-slate-50 transition-colors"
+                      >
+                        লগইন / রেজিস্টার পেজ
                       </Link>
                       <Link
                         href="/track"
                         onClick={() => setAccountMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="block px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 transition-colors"
                       >
                         অর্ডার ট্র্যাক করুন
                       </Link>
                     </>
                   )}
-                  <hr className="my-1 border-slate-100" />
-                  <Link
-                    href="/admin"
-                    onClick={() => setAccountMenuOpen(false)}
-                    className="block px-4 py-2 text-xs font-semibold text-slate-500 hover:text-sky-700 hover:bg-slate-50 transition-colors"
-                  >
-                    ম্যানেজমেন্ট ড্যাশবোর্ড (Admin)
-                  </Link>
+                  {isOwner && (
+                    <>
+                      <hr className="my-1 border-slate-100" />
+                      <Link
+                        href="/admin"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="flex items-center gap-2 mx-2 my-1 px-3 py-2 text-xs font-bold text-sky-800 bg-sky-50 hover:bg-sky-100 rounded-xl transition-colors border border-sky-200/80 shadow-xs"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span>👑 ম্যানেজমেন্ট ড্যাশবোর্ড</span>
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -372,7 +407,7 @@ export function Header() {
               <span>অর্ডার ট্র্যাক করুন</span>
             </Link>
             <Link
-              href="/account"
+              href={user ? "/account" : `/account?returnUrl=${encodeURIComponent(pathname || "/")}`}
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 py-2 px-3 text-xs font-medium text-slate-700 hover:text-sky-600 rounded-xl"
             >
@@ -388,16 +423,19 @@ export function Header() {
               <span>পছন্দের তালিকা</span>
             </Link>
 
-            <hr className="my-2 border-slate-100" />
-
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 py-2 px-3 text-xs font-bold text-slate-600 hover:text-sky-700 rounded-xl"
-            >
-              <ShieldCheck className="w-4 h-4 text-sky-600" />
-              <span>এডমিন পোর্টাল</span>
-            </Link>
+            {isOwner && (
+              <>
+                <hr className="my-2 border-slate-100" />
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold text-sky-800 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200"
+                >
+                  <ShieldCheck className="w-4 h-4 text-sky-600" />
+                  <span>👑 ওনার ড্যাশবোর্ড (Admin)</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>,

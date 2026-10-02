@@ -4,6 +4,7 @@ import { ProductService, ProductFilterQuery } from "@/services/productService";
 import { Product } from "@/models/Product";
 import { productSchema } from "@/lib/validation/schemas";
 import { AuditLog } from "@/models/AuditLog";
+import { INITIAL_OWNER_EMAIL } from "@/lib/permissions/rbac";
 
 export async function GET(req: NextRequest) {
   try {
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     // Audit log
     await AuditLog.create({
-      actor: { email: "admin@auladit.com", role: "ADMIN" },
+      actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
       action: "PRODUCT_CREATED",
       entityType: "PRODUCT",
       entityId: newProduct._id.toString(),

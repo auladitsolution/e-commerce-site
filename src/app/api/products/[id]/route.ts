@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/mongoose";
 import { Product } from "@/models/Product";
 import { AuditLog } from "@/models/AuditLog";
+import { INITIAL_OWNER_EMAIL } from "@/lib/permissions/rbac";
 
 export async function GET(
   req: NextRequest,
@@ -43,7 +44,7 @@ export async function PUT(
 
     if (priceChanged) {
       await AuditLog.create({
-        actor: { email: "admin@auladit.com", role: "ADMIN" },
+        actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
         action: "PRODUCT_PRICE_CHANGED",
         entityType: "PRODUCT",
         entityId: id,
@@ -79,7 +80,7 @@ export async function DELETE(
     }
 
     await AuditLog.create({
-      actor: { email: "admin@auladit.com", role: "ADMIN" },
+      actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
       action: "PRODUCT_DEACTIVATED",
       entityType: "PRODUCT",
       entityId: id,

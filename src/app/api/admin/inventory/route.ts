@@ -4,6 +4,7 @@ import { StockMovement } from "@/models/StockMovement";
 import { Product } from "@/models/Product";
 import { InventoryService } from "@/services/inventoryService";
 import { AuditLog } from "@/models/AuditLog";
+import { INITIAL_OWNER_EMAIL } from "@/lib/permissions/rbac";
 
 export async function GET() {
   try {
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     });
 
     await AuditLog.create({
-      actor: { email: "admin@auladit.com", role: "ADMIN" },
+      actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
       action: "STOCK_MANUALLY_ADJUSTED",
       entityType: "INVENTORY",
       entityId: productId,

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db/mongoose";
 import { Order } from "@/models/Order";
 import { Payment } from "@/models/Payment";
 import { AuditLog } from "@/models/AuditLog";
+import { INITIAL_OWNER_EMAIL } from "@/lib/permissions/rbac";
 import { OrderService } from "@/services/orderService";
 import { OrderStatus } from "@/types/ecommerce";
 
@@ -49,7 +50,7 @@ export async function PATCH(
       await OrderService.updateOrderStatus(id, status as OrderStatus, note, "ADMIN");
 
       await AuditLog.create({
-        actor: { email: "admin@auladit.com", role: "ADMIN" },
+        actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
         action: "ORDER_STATUS_CHANGED",
         entityType: "ORDER",
         entityId: id,
@@ -85,7 +86,7 @@ export async function PATCH(
       );
 
       await AuditLog.create({
-        actor: { email: "admin@auladit.com", role: "ADMIN" },
+        actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
         action: "PAYMENT_MANUALLY_VERIFIED",
         entityType: "PAYMENT",
         entityId: id,

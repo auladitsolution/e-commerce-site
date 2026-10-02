@@ -6,6 +6,7 @@ import { ShippingZone } from "@/models/ShippingZone";
 import { Coupon } from "@/models/Coupon";
 import { User } from "@/models/User";
 import { StoreSettings } from "@/models/StoreSettings";
+import { INITIAL_OWNER_EMAIL, INITIAL_OWNER_NAME } from "@/lib/permissions/rbac";
 
 export async function seedInitialData() {
   await connectDB();
@@ -66,8 +67,8 @@ export async function seedInitialData() {
   if (adminCount === 0) {
     await User.create({
       firebaseUid: "admin_master_uid_123",
-      email: "admin@auladit.com",
-      name: "Aulad Admin",
+      email: INITIAL_OWNER_EMAIL,
+      name: INITIAL_OWNER_NAME,
       role: "OWNER",
       active: true,
     });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/mongoose";
 import { StoreSettings, getStoreSettings } from "@/models/StoreSettings";
 import { AuditLog } from "@/models/AuditLog";
+import { INITIAL_OWNER_EMAIL } from "@/lib/permissions/rbac";
 
 export async function GET() {
   try {
@@ -26,7 +27,7 @@ export async function PUT(req: NextRequest) {
     );
 
     await AuditLog.create({
-      actor: { email: "admin@auladit.com", role: "ADMIN" },
+      actor: { email: INITIAL_OWNER_EMAIL, role: "OWNER" },
       action: "SETTINGS_UPDATED",
       entityType: "SETTINGS",
       afterSummary: "স্টোর সেটিংস এবং থিম আপডেট করা হয়েছে",

@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import { Home, Grid, Heart, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { totalItemsCount } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { user } = useAuth();
 
   // Hide on admin routes and single product detail view (where sticky purchase bar takes priority)
   if (
@@ -81,7 +83,7 @@ export function MobileBottomNav() {
         </Link>
 
         <Link
-          href="/account"
+          href={user || pathname?.startsWith("/account") ? "/account" : `/account?returnUrl=${encodeURIComponent(pathname || "/")}`}
           className={`flex flex-col items-center py-1 px-3 text-xs font-medium transition-colors ${
             pathname?.startsWith("/account") && !pathname.includes("wishlist")
               ? "text-sky-600"
