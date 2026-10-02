@@ -42,9 +42,30 @@ export function StoreSettingsProvider({
   };
 
   useEffect(() => {
-    if (!initialSettings) {
-      fetchSettings();
+    let ignore = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/settings");
+        if (res.ok && !ignore) {
+          const data = await res.json();
+          setSettings(data);
+        }
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
     }
+
+    if (!initialSettings) {
+      load();
+    }
+
+    return () => {
+      ignore = true;
+    };
   }, [initialSettings]);
 
   // Apply custom theme colors if present
@@ -62,6 +83,24 @@ export function StoreSettingsProvider({
       }
     }
   }, [settings?.theme]);
+
+  // Apply custom dynamic favicon if set in StoreSettings
+  useEffect(() => {
+    const faviconUrl = settings?.storeProfile?.favicon;
+    if (faviconUrl) {
+      const iconLinks = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
+      if (iconLinks.length > 0) {
+        iconLinks.forEach((link) => {
+          link.href = faviconUrl;
+        });
+      } else {
+        const link = document.createElement("link");
+        link.rel = "icon";
+        link.href = faviconUrl;
+        document.head.appendChild(link);
+      }
+    }
+  }, [settings?.storeProfile?.favicon]);
 
   return (
     <StoreSettingsContext.Provider
